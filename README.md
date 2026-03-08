@@ -34,7 +34,8 @@ All templates share the **same API surface** — swap frameworks without changin
 | Chunking | Custom recursive splitter | RecursiveCharacterTextSplitter | SentenceSplitter (auto) |
 | Embedding | Direct OpenAI API | OpenAIEmbeddings | OpenAIEmbedding |
 | Vector Store | Direct ChromaDB | langchain-chroma | ChromaVectorStore |
-| RAG Pipeline | Manual (embed→retrieve→prompt→chat) | LCEL chain | query_engine.query() |
+| Hybrid Search | BM25 + RRF | BM25 + RRF | BM25 + RRF |
+| RAG Pipeline | Manual (embed→retrieve→prompt→chat) | LCEL chain | retriever + llm.complete() |
 | Control Level | High | Medium | Low |
 | Lines of Code | Most | Medium | Least |
 
@@ -90,10 +91,15 @@ open http://localhost:8000/docs
 # Upload a document
 curl -X POST http://localhost:8000/upload -F "file=@document.pdf"
 
-# Ask a question
+# Ask a question (hybrid search by default)
 curl -X POST http://localhost:8000/query \
   -H "Content-Type: application/json" \
   -d '{"question": "What is this document about?"}'
+
+# Use specific search mode
+curl -X POST http://localhost:8000/query \
+  -H "Content-Type: application/json" \
+  -d '{"question": "exact term lookup", "search_mode": "keyword"}'
 
 # Connect to Claude Code via MCP
 claude mcp add ragforge --transport sse http://localhost:8001/sse
@@ -105,7 +111,7 @@ claude mcp add ragforge --transport sse http://localhost:8001/sse
 |--------|------|-------------|
 | `POST` | `/upload` | Upload a document (PDF, TXT, MD) |
 | `POST` | `/ingest-url` | Ingest content from a URL |
-| `POST` | `/query` | Ask a question using RAG |
+| `POST` | `/query` | Ask a question using RAG (supports `search_mode`: vector/keyword/hybrid) |
 | `GET` | `/documents` | List all ingested documents |
 | `DELETE` | `/documents/{id}` | Delete a document |
 | `GET` | `/health` | Health check |
@@ -118,7 +124,7 @@ Every template includes an MCP (Model Context Protocol) server that exposes RAG 
 
 | Tool | Description |
 |------|-------------|
-| `rag_query` | Ask a question to the knowledge base |
+| `rag_query` | Ask a question (supports `search_mode`: vector/keyword/hybrid) |
 | `rag_upload_text` | Upload text content |
 | `rag_ingest_url` | Ingest content from a URL |
 | `rag_list_documents` | List all documents |
@@ -128,6 +134,25 @@ Every template includes an MCP (Model Context Protocol) server that exposes RAG 
 
 ```bash
 claude mcp add ragforge --transport sse http://localhost:8001/sse
+```
+
+## Hybrid Search
+
+All templates support **3 search modes** out of the box:
+
+| Mode | How It Works | Best For |
+|------|-------------|----------|
+| `hybrid` (default) | Vector + BM25 keyword, merged with RRF | General use — best overall quality |
+| `vector` | Cosine similarity via ChromaDB HNSW | Semantic/conceptual questions |
+| `keyword` | BM25 term matching via rank-bm25 | Exact term lookup, names, codes |
+
+**Reciprocal Rank Fusion (RRF)** combines results from both search methods by rank position, so no score normalization is needed. The BM25 index is built on startup and auto-rebuilt after every ingest/delete.
+
+```bash
+# Default hybrid search
+curl -X POST http://localhost:8000/query \
+  -H "Content-Type: application/json" \
+  -d '{"question": "how does authentication work?", "search_mode": "hybrid"}'
 ```
 
 ## Architecture
@@ -153,7 +178,11 @@ claude mcp add ragforge --transport sse http://localhost:8001/sse
                     │  │  (Vector DB)   │  │
                     │  └───────┬────────┘  │
                     │  ┌───────▼────────┐  │
-  Question ────────►│  │  RAG Pipeline  │──►  Answer + Sources
+  Question ────────►│  │  Hybrid Search │──► Vector + BM25
+                    │  │  (RRF Fusion)  │  │
+                    │  └───────┬────────┘  │
+                    │  ┌───────▼────────┐  │
+                    │  │  RAG Pipeline  │──►  Answer + Sources
                     │  │  (OpenAI LLM)  │  │
                     │  └────────────────┘  │
                     └─────────────────────┘
@@ -171,6 +200,7 @@ All templates use the same `.env` configuration:
 | `CHUNK_SIZE` | `1000` | Characters per chunk |
 | `CHUNK_OVERLAP` | `200` | Overlap between chunks |
 | `TOP_K` | `5` | Number of chunks to retrieve |
+| `RRF_K` | `60` | RRF constant for hybrid search ranking |
 | `CHROMA_PATH` | `./data/chroma` | ChromaDB storage path |
 
 ## Project Structure
@@ -192,7 +222,7 @@ We welcome contributions from developers worldwide! See [CONTRIBUTING.md](CONTRI
 ### Ways to Contribute
 
 - **New Templates** — Add support for different LLMs (Claude, Gemini, Ollama), vector DBs (Pinecone, Qdrant, Weaviate), or frameworks
-- **Features** — Multi-modal RAG, hybrid search, reranking, conversation memory
+- **Features** — Multi-modal RAG, reranking, conversation memory
 - **Improvements** — Better chunking strategies, error handling, testing, documentation
 - **Bug Fixes** — Report issues or submit fixes
 - **Translations** — Help translate documentation
@@ -215,7 +245,7 @@ docker compose up --build
 - [ ] Support for Gemini API
 - [ ] Pinecone / Qdrant / Weaviate vector store templates
 - [ ] Multi-modal RAG (images, tables)
-- [ ] Hybrid search (vector + keyword)
+- [x] Hybrid search (vector + BM25 keyword + RRF)
 - [ ] Reranking (Cohere, cross-encoder)
 - [ ] Conversation memory / chat history
 - [ ] Authentication & API keys for endpoints
