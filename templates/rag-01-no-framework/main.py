@@ -1,0 +1,20 @@
+import os
+
+from fastapi import FastAPI
+
+from config import settings
+from routers import documents, query
+
+# Ensure directories exist
+os.makedirs(settings.chroma_path, exist_ok=True)
+os.makedirs(settings.upload_dir, exist_ok=True)
+
+app = FastAPI(title="RAG Server", version="1.0.0")
+
+app.include_router(documents.router, tags=["documents"])
+app.include_router(query.router, tags=["query"])
+
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}

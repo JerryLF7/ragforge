@@ -1,0 +1,21 @@
+# Projects created by ragforge
+projects/
+
+# Test projects
+testproject/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Environment
+.env
+
+# Data
+data/
+uploads/
+
+# IDE
+.vscode/
+.idea/
