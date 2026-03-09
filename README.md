@@ -24,20 +24,21 @@ my-knowledge-base/
 | 1 | **No Framework** | openai + chromadb + fastapi | Full control, learning, customization |
 | 2 | **LangChain** | langchain + langchain-openai | Ecosystem integration, rapid prototyping |
 | 3 | **LlamaIndex** | llama-index + integrations | Minimal code, highest abstraction |
+| 4 | **Claude (Anthropic)** | anthropic + voyageai + chromadb | Claude API users, Anthropic ecosystem |
 
 All templates share the **same API surface** — swap frameworks without changing your client code.
 
 ### Template Comparison
 
-| Feature | No Framework | LangChain | LlamaIndex |
-|---------|:------------:|:---------:|:----------:|
-| Chunking | Custom recursive splitter | RecursiveCharacterTextSplitter | SentenceSplitter (auto) |
-| Embedding | Direct OpenAI API | OpenAIEmbeddings | OpenAIEmbedding |
-| Vector Store | Direct ChromaDB | langchain-chroma | ChromaVectorStore |
-| Hybrid Search | BM25 + RRF | BM25 + RRF | BM25 + RRF |
-| RAG Pipeline | Manual (embed→retrieve→prompt→chat) | LCEL chain | retriever + llm.complete() |
-| Control Level | High | Medium | Low |
-| Lines of Code | Most | Medium | Least |
+| Feature | No Framework | LangChain | LlamaIndex | Claude (Anthropic) |
+|---------|:------------:|:---------:|:----------:|:------------------:|
+| Chunking | Custom recursive splitter | RecursiveCharacterTextSplitter | SentenceSplitter (auto) | Custom recursive splitter |
+| Embedding | Direct OpenAI API | OpenAIEmbeddings | OpenAIEmbedding | Voyage AI |
+| Vector Store | Direct ChromaDB | langchain-chroma | ChromaVectorStore | Direct ChromaDB |
+| Hybrid Search | BM25 + RRF | BM25 + RRF | BM25 + RRF | BM25 + RRF |
+| RAG Pipeline | Manual (embed→retrieve→prompt→chat) | LCEL chain | retriever + llm.complete() | Manual (Anthropic messages API) |
+| Control Level | High | Medium | Low | High |
+| Lines of Code | Most | Medium | Least | Most |
 
 ## Quick Start
 
@@ -61,6 +62,7 @@ python3 ragforge.py new my-project
 python3 ragforge.py new my-project -t 1   # No Framework
 python3 ragforge.py new my-project -t 2   # LangChain
 python3 ragforge.py new my-project -t 3   # LlamaIndex
+python3 ragforge.py new my-project -t 4   # Claude (Anthropic)
 ```
 
 ### 2. Configure
@@ -211,7 +213,8 @@ ragforge/
 ├── templates/
 │   ├── rag-01-no-framework/ # Template 1: Pure Python
 │   ├── rag-02-langchain/    # Template 2: LangChain
-│   └── rag-03-llamaindex/   # Template 3: LlamaIndex
+│   ├── rag-03-llamaindex/   # Template 3: LlamaIndex
+│   └── rag-04-claude/       # Template 4: Claude (Anthropic)
 └── projects/                # Your created projects
 ```
 
@@ -240,7 +243,7 @@ docker compose up --build
 
 ## Roadmap
 
-- [ ] Support for Claude API (Anthropic)
+- [x] Support for Claude API (Anthropic)
 - [ ] Support for Ollama (local LLM)
 - [ ] Support for Gemini API
 - [ ] Pinecone / Qdrant / Weaviate vector store templates

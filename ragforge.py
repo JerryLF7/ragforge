@@ -31,6 +31,12 @@ TEMPLATES = {
         "desc": "LlamaIndex framework: query engine, readers, index",
         "desc_th": "ใช้ LlamaIndex framework",
     },
+    "4": {
+        "dir": "rag-04-claude",
+        "name": "Claude (Anthropic)",
+        "desc": "Anthropic Claude + Voyage AI embeddings + chromadb + fastapi",
+        "desc_th": "ใช้ Claude API + Voyage AI embeddings",
+    },
 }
 
 PROJECT_NAME_PATTERN = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_-]*$")
@@ -69,7 +75,7 @@ def pick_template() -> str:
 
     while True:
         try:
-            choice = input("Select template [1/2/3]: ").strip()
+            choice = input("Select template [1/2/3/4]: ").strip()
         except EOFError:
             print("\nDefaulting to template 1 (No Framework)")
             return "1"

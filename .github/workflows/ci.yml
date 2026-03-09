@@ -52,7 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        template: [rag-01-no-framework, rag-02-langchain, rag-03-llamaindex]
+        template: [rag-01-no-framework, rag-02-langchain, rag-03-llamaindex, rag-04-claude]
     steps:
       - uses: actions/checkout@v4
       - name: Build Docker image

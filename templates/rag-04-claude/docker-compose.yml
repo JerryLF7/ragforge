@@ -1,0 +1,33 @@
+services:
+  rag-server:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - chroma_data:/app/data/chroma
+      - upload_data:/app/uploads
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  mcp-server:
+    build: .
+    command: python mcp_server.py
+    ports:
+      - "8001:8001"
+    depends_on:
+      rag-server:
+        condition: service_healthy
+    environment:
+      - RAG_API_URL=http://rag-server:8000
+    restart: unless-stopped
+
+volumes:
+  chroma_data:
+  upload_data:
