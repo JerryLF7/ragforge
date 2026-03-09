@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] - 2026-03-09
+
+### Added
+- Hybrid search: vector + BM25 keyword with Reciprocal Rank Fusion (RRF)
+- 3 search modes: `vector`, `keyword`, `hybrid` (default)
+- `search_mode` parameter in query API and MCP tools
+
+### Changed
+- MCP transport upgraded from SSE to Streamable HTTP
+- MCP endpoint changed from `/sse` to `/mcp`
+- `mcp[cli]` minimum version bumped to >=1.8.0
+- `chromadb` version unpinned for compatibility
+
 ## [0.1.0] - 2026-03-08
 
 ### Added

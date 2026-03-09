@@ -11,7 +11,7 @@ python3 ragforge.py new my-knowledge-base -t 1
 ```
 my-knowledge-base/
 ├── main.py              # FastAPI server
-├── mcp_server.py        # MCP server (SSE)
+├── mcp_server.py        # MCP server (Streamable HTTP)
 ├── services/            # RAG pipeline
 ├── docker-compose.yml   # One-command deployment
 └── .env                 # Your config
@@ -102,7 +102,7 @@ curl -X POST http://localhost:8000/query \
   -d '{"question": "exact term lookup", "search_mode": "keyword"}'
 
 # Connect to Claude Code via MCP
-claude mcp add ragforge --transport sse http://localhost:8001/sse
+claude mcp add ragforge --transport http http://localhost:8001/mcp
 ```
 
 ## API Endpoints
@@ -133,7 +133,7 @@ Every template includes an MCP (Model Context Protocol) server that exposes RAG 
 **Setup with Claude Code:**
 
 ```bash
-claude mcp add ragforge --transport sse http://localhost:8001/sse
+claude mcp add ragforge --transport http http://localhost:8001/mcp
 ```
 
 ## Hybrid Search
@@ -161,7 +161,7 @@ curl -X POST http://localhost:8000/query \
                     ┌─────────────────────┐
                     │   Claude Code / AI   │
                     └──────────┬──────────┘
-                               │ MCP (SSE)
+                               │ MCP (HTTP)
                     ┌──────────▼──────────┐
                     │   MCP Server :8001   │
                     └──────────┬──────────┘

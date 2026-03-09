@@ -10,14 +10,14 @@ RAG (Retrieval-Augmented Generation) server built from scratch using OpenAI + Ch
 - **Vector DB**: ChromaDB (PersistentClient, cosine distance)
 - **PDF**: PyMuPDF (fitz)
 - **Web scraping**: requests + BeautifulSoup4
-- **MCP**: FastMCP SSE server (port 8001)
+- **MCP**: FastMCP Streamable HTTP server (port 8001)
 
 ## Project Structure
 ```
 ├── main.py                 # FastAPI entrypoint
 ├── config.py               # Settings from .env (pydantic-settings)
 ├── models.py               # Pydantic request/response schemas
-├── mcp_server.py           # MCP SSE server wrapping RAG API
+├── mcp_server.py           # MCP Streamable HTTP server wrapping RAG API
 ├── routers/
 │   ├── documents.py        # POST /upload, GET /documents, DELETE /documents/{id}
 │   └── query.py            # POST /query, POST /ingest-url
@@ -68,7 +68,7 @@ uvicorn main:app --reload --port 8000
 python mcp_server.py  # separate terminal
 
 # MCP for Claude Code
-claude mcp add ragforge --transport sse http://localhost:8001/sse
+claude mcp add ragforge --transport http http://localhost:8001/mcp
 ```
 
 ## Hybrid Search
@@ -83,4 +83,4 @@ claude mcp add ragforge --transport sse http://localhost:8001/sse
 - Embeddings are batched in groups of 100 chunks per API call
 - ChromaDB uses `upsert` to prevent duplicates on re-upload
 - Uploaded files are cleaned up after ingestion (not stored permanently)
-- MCP server is a separate process that calls RAG API via HTTP internally
+- MCP server uses Streamable HTTP transport (replaces deprecated SSE)

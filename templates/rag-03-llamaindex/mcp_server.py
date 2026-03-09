@@ -1,4 +1,4 @@
-"""MCP Server for RAG - exposes RAG API as MCP tools via SSE transport."""
+"""MCP Server for RAG - exposes RAG API as MCP tools via Streamable HTTP transport."""
 
 import io
 import os
@@ -108,4 +108,4 @@ async def rag_delete_document(document_id: str) -> str:
 
 
 if __name__ == "__main__":
-    mcp.run(transport="sse")
+    mcp.run(transport="streamable-http")

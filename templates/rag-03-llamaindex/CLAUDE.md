@@ -11,14 +11,14 @@ RAG server built with LlamaIndex framework. Uses VectorStoreIndex, query engine,
 - **Vector DB**: llama-index-vector-stores-chroma (cosine distance)
 - **PDF**: llama-index-readers-file (PyMuPDFReader)
 - **Web scraping**: llama-index-readers-web (SimpleWebPageReader)
-- **MCP**: FastMCP SSE server (port 8001)
+- **MCP**: FastMCP Streamable HTTP server (port 8001)
 
 ## Project Structure
 ```
 ├── main.py                 # FastAPI entrypoint
 ├── config.py               # Settings from .env (pydantic-settings)
 ├── models.py               # Pydantic request/response schemas
-├── mcp_server.py           # MCP SSE server wrapping RAG API
+├── mcp_server.py           # MCP Streamable HTTP server wrapping RAG API
 ├── routers/
 │   ├── documents.py        # POST /upload, GET /documents, DELETE /documents/{id}
 │   └── query.py            # POST /query, POST /ingest-url
@@ -68,7 +68,7 @@ uvicorn main:app --reload --port 8000
 python mcp_server.py  # separate terminal
 
 # MCP for Claude Code
-claude mcp add ragforge --transport sse http://localhost:8001/sse
+claude mcp add ragforge --transport http http://localhost:8001/mcp
 ```
 
 ## Hybrid Search
@@ -84,4 +84,4 @@ claude mcp add ragforge --transport sse http://localhost:8001/sse
 - Ingestion uses `VectorStoreIndex.from_documents()` which handles chunking + embedding + storing
 - Retrieval decoupled from generation: uses `index.as_retriever()` + `LlamaSettings.llm.complete()` to support hybrid search modes
 - List/delete operations go through ChromaDB collection directly (LlamaIndex has no built-in delete-by-metadata)
-- MCP server is a separate process that calls RAG API via HTTP internally
+- MCP server uses Streamable HTTP transport (replaces deprecated SSE)

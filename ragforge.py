@@ -172,7 +172,7 @@ Done! Next steps:
   # API docs at http://localhost:8000/docs
 
   # Connect MCP to Claude Code:
-  claude mcp add ragforge --transport sse http://localhost:8001/sse
+  claude mcp add ragforge --transport http http://localhost:8001/mcp
 """)
 
 

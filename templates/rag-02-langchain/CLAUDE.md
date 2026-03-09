@@ -11,14 +11,14 @@ RAG server built with LangChain framework. Uses LCEL chains, LangChain loaders, 
 - **Vector DB**: Chroma via langchain-chroma (cosine distance)
 - **PDF**: PyMuPDFLoader (via langchain-community)
 - **Web scraping**: WebBaseLoader (via langchain-community)
-- **MCP**: FastMCP SSE server (port 8001)
+- **MCP**: FastMCP Streamable HTTP server (port 8001)
 
 ## Project Structure
 ```
 ├── main.py                 # FastAPI entrypoint
 ├── config.py               # Settings from .env (pydantic-settings)
 ├── models.py               # Pydantic request/response schemas
-├── mcp_server.py           # MCP SSE server wrapping RAG API
+├── mcp_server.py           # MCP Streamable HTTP server wrapping RAG API
 ├── routers/
 │   ├── documents.py        # POST /upload, GET /documents, DELETE /documents/{id}
 │   └── query.py            # POST /query, POST /ingest-url
@@ -67,7 +67,7 @@ uvicorn main:app --reload --port 8000
 python mcp_server.py  # separate terminal
 
 # MCP for Claude Code
-claude mcp add ragforge --transport sse http://localhost:8001/sse
+claude mcp add ragforge --transport http http://localhost:8001/mcp
 ```
 
 ## Hybrid Search
@@ -83,4 +83,4 @@ claude mcp add ragforge --transport sse http://localhost:8001/sse
 - RAG pipeline uses LCEL: `ChatPromptTemplate | ChatOpenAI | StrOutputParser`
 - Vector query uses `similarity_search_with_score()` for ranked results
 - Document delete goes through ChromaDB collection directly (no LangChain abstraction for delete)
-- MCP server is a separate process that calls RAG API via HTTP internally
+- MCP server uses Streamable HTTP transport (replaces deprecated SSE)

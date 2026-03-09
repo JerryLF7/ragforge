@@ -79,7 +79,7 @@ docker compose up --build
 # Verify all endpoints work
 curl http://localhost:8000/health
 curl http://localhost:8000/documents
-curl http://localhost:8001/sse  # MCP server
+curl http://localhost:8001/mcp  # MCP server
 ```
 
 ## Commit Messages
