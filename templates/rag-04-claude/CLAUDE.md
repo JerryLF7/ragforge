@@ -27,6 +27,7 @@ RAG (Retrieval-Augmented Generation) server built using Anthropic Claude API + V
 │   ├── vector_store.py     # ChromaDB wrapper (add, query, list, delete)
 │   ├── keyword_search.py   # BM25 keyword search (rank-bm25)
 │   ├── hybrid_search.py    # Reciprocal Rank Fusion (RRF) merger
+│   ├── reranker.py         # Voyage AI Rerank (optional)
 │   ├── loaders.py          # PDF, text, URL loaders
 │   └── rag.py              # Retrieve + Generate pipeline (vector/keyword/hybrid)
 ├── docker-compose.yml      # rag-server + mcp-server
@@ -58,6 +59,8 @@ RAG (Retrieval-Augmented Generation) server built using Anthropic Claude API + V
 - `CHUNK_OVERLAP` — Default: 200
 - `TOP_K` — Default: 5
 - `RRF_K` — RRF constant for hybrid search. Default: 60
+- `RERANK_ENABLED` — Enable reranking. Default: false
+- `VOYAGE_RERANK_MODEL` — Default: rerank-2 (uses existing VOYAGE_API_KEY)
 
 ## Running
 ```bash
@@ -79,6 +82,12 @@ claude mcp add ragforge --transport http http://localhost:8001/mcp
 - **Hybrid search** (default): Runs both, merges results using Reciprocal Rank Fusion (RRF)
 - BM25 index is built on startup and rebuilt after each ingest/delete
 - Query API accepts `search_mode`: `"vector"`, `"keyword"`, or `"hybrid"`
+
+## Reranking (Optional)
+- Disabled by default (`RERANK_ENABLED=false`)
+- Uses Voyage AI Rerank to re-score retrieved chunks by semantic relevance
+- When enabled: retrieves TOP_K * 3 candidates, reranks, keeps top TOP_K
+- Uses existing `VOYAGE_API_KEY` (no additional API key needed)
 
 ## Key Design Decisions
 - Uses Anthropic Claude for LLM (system prompt as separate parameter, max_tokens required)

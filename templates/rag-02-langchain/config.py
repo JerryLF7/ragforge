@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     upload_dir: str = "./uploads"
     top_k: int = Field(default=5, gt=0, le=100)
     rrf_k: int = Field(default=60, gt=0)
+    rerank_enabled: bool = False
+    cohere_api_key: str = ""
+    cohere_rerank_model: str = "rerank-v3.5"
     max_upload_size_mb: int = Field(default=50, gt=0, le=500)
 
 

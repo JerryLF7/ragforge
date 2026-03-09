@@ -36,6 +36,7 @@ All templates share the **same API surface** — swap frameworks without changin
 | Embedding | Direct OpenAI API | OpenAIEmbeddings | OpenAIEmbedding | Voyage AI |
 | Vector Store | Direct ChromaDB | langchain-chroma | ChromaVectorStore | Direct ChromaDB |
 | Hybrid Search | BM25 + RRF | BM25 + RRF | BM25 + RRF | BM25 + RRF |
+| Reranking | Cohere Rerank | Cohere Rerank | Cohere Rerank | Voyage AI Rerank |
 | RAG Pipeline | Manual (embed→retrieve→prompt→chat) | LCEL chain | retriever + llm.complete() | Manual (Anthropic messages API) |
 | Control Level | High | Medium | Low | High |
 | Lines of Code | Most | Medium | Least | Most |
@@ -157,6 +158,23 @@ curl -X POST http://localhost:8000/query \
   -d '{"question": "how does authentication work?", "search_mode": "hybrid"}'
 ```
 
+## Reranking (Optional)
+
+All templates support **optional reranking** to improve retrieval quality. When enabled, the system over-fetches candidates (TOP_K × 3), reranks them by semantic relevance, and keeps the top TOP_K.
+
+| Templates | Reranker | API Key Needed |
+|-----------|----------|----------------|
+| 1, 2, 3 | **Cohere Rerank** (rerank-v3.5) | `COHERE_API_KEY` |
+| 4 (Claude) | **Voyage AI Rerank** (rerank-2) | Uses existing `VOYAGE_API_KEY` |
+
+```bash
+# Enable in .env
+RERANK_ENABLED=true
+COHERE_API_KEY=your-key-here   # templates 1-3
+```
+
+Reranking is **disabled by default** — no extra API key needed unless you opt in.
+
 ## Architecture
 
 ```
@@ -203,6 +221,8 @@ All templates use the same `.env` configuration:
 | `CHUNK_OVERLAP` | `200` | Overlap between chunks |
 | `TOP_K` | `5` | Number of chunks to retrieve |
 | `RRF_K` | `60` | RRF constant for hybrid search ranking |
+| `RERANK_ENABLED` | `false` | Enable reranking of retrieved chunks |
+| `COHERE_API_KEY` | (optional) | Cohere API key for reranking (templates 1-3) |
 | `CHROMA_PATH` | `./data/chroma` | ChromaDB storage path |
 
 ## Project Structure
@@ -249,7 +269,7 @@ docker compose up --build
 - [ ] Pinecone / Qdrant / Weaviate vector store templates
 - [ ] Multi-modal RAG (images, tables)
 - [x] Hybrid search (vector + BM25 keyword + RRF)
-- [ ] Reranking (Cohere, cross-encoder)
+- [x] Reranking (Cohere Rerank / Voyage AI Rerank)
 - [ ] Conversation memory / chat history
 - [ ] Authentication & API keys for endpoints
 - [ ] Web UI for document management

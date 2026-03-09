@@ -34,7 +34,14 @@ def ask(question: str, top_k: int | None = None, search_mode: SearchMode = Searc
     """Run the full RAG pipeline: retrieve -> generate."""
     k = top_k or settings.top_k
 
-    results = _retrieve(question, k, search_mode)
+    if settings.rerank_enabled:
+        fetch_k = k * 3
+        results = _retrieve(question, fetch_k, search_mode)
+        if results:
+            from services.reranker import rerank
+            results = rerank(question, results, k)
+    else:
+        results = _retrieve(question, k, search_mode)
 
     if not results:
         return {

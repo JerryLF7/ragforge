@@ -28,6 +28,7 @@ RAG server built with LlamaIndex framework. Uses VectorStoreIndex, query engine,
 │   ├── vector_store.py     # ChromaDB direct access for list/delete/get_all operations
 │   ├── keyword_search.py   # BM25 keyword search (rank-bm25)
 │   ├── hybrid_search.py    # Reciprocal Rank Fusion (RRF) merger
+│   ├── reranker.py         # Cohere Rerank (optional)
 │   └── rag.py              # Hybrid retrieval (vector/keyword/hybrid) + LLM generation
 ├── docker-compose.yml      # rag-server + mcp-server
 └── .env                    # OPENAI_API_KEY and settings
@@ -56,6 +57,9 @@ RAG server built with LlamaIndex framework. Uses VectorStoreIndex, query engine,
 - `CHUNK_OVERLAP` — Default: 200
 - `TOP_K` — Default: 5
 - `RRF_K` — RRF constant for hybrid search. Default: 60
+- `RERANK_ENABLED` — Enable reranking. Default: false
+- `COHERE_API_KEY` — Cohere API key (required if reranking enabled)
+- `COHERE_RERANK_MODEL` — Default: rerank-v3.5
 
 ## Running
 ```bash
@@ -77,6 +81,12 @@ claude mcp add ragforge --transport http http://localhost:8001/mcp
 - **Hybrid search** (default): Runs both, merges results using Reciprocal Rank Fusion (RRF)
 - BM25 index is built on startup and rebuilt after each ingest/delete
 - Query API accepts `search_mode`: `"vector"`, `"keyword"`, or `"hybrid"`
+
+## Reranking (Optional)
+- Disabled by default (`RERANK_ENABLED=false`)
+- Uses Cohere Rerank v3.5 to re-score retrieved chunks by semantic relevance
+- When enabled: retrieves TOP_K * 3 candidates, reranks, keeps top TOP_K
+- Requires `COHERE_API_KEY` in `.env`
 
 ## Key Design Decisions
 - Global LlamaIndex `Settings` configures LLM, embed model, and node parser once
