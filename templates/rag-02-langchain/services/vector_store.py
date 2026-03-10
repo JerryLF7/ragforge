@@ -7,6 +7,7 @@ from config import settings
 _embeddings = OpenAIEmbeddings(
     model=settings.openai_embedding_model,
     openai_api_key=settings.openai_api_key,
+    openai_api_base=settings.openai_base_url,
 )
 
 _vectorstore = Chroma(

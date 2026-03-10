@@ -7,7 +7,10 @@ from services.hybrid_search import reciprocal_rank_fusion
 from services.keyword_search import search as keyword_search
 from services.vector_store import query as vector_query
 
-_client = OpenAI(api_key=settings.openai_api_key)
+_client = OpenAI(
+    api_key=settings.openai_api_key,
+    base_url=settings.openai_base_url,
+)
 
 SYSTEM_PROMPT = """You are a helpful assistant that answers questions based on the provided context.
 Use ONLY the context below to answer. If the context doesn't contain enough information, say so.

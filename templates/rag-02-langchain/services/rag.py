@@ -11,6 +11,7 @@ from services.vector_store import query as vector_query
 _llm = ChatOpenAI(
     model=settings.openai_chat_model,
     openai_api_key=settings.openai_api_key,
+    openai_api_base=settings.openai_base_url,
     temperature=0.2,
 )
 
