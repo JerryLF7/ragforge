@@ -12,13 +12,13 @@ from config import settings
 LlamaSettings.llm = OpenAI(
     model=settings.openai_chat_model,
     api_key=settings.openai_api_key,
-    base_url=settings.openai_base_url,
+    api_base=settings.openai_base_url,
     temperature=0.2,
 )
 LlamaSettings.embed_model = OpenAIEmbedding(
     model_name=settings.openai_embedding_model,
     api_key=settings.openai_api_key,
-    base_url=settings.openai_base_url,
+    api_base=settings.openai_base_url,
 )
 LlamaSettings.node_parser = SentenceSplitter(
     chunk_size=settings.chunk_size,
